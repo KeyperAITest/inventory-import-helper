@@ -1,26 +1,30 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Inventory Import File Formatter</title>
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.cssry Import File Formatter</h1>
-<p>Upload your inventory CSV. This tool will format it for system import.</p>
+  <!-- Page Styling -->
+  <link rel="stylesheet" href="style.cssory Import File Formatter</h1>
+  <p>
+    Upload your inventory CSV file. This tool will format it into the
+    required structure for system import.
+  </p>
 
-<input type="file" id="fileInput" accept=".csv" />
+  <input type="file" id="fileInput" accept=".csv">
 
-<div id="mappingArea"></div>
+  <div id="mappingArea"></div>
 
-<br>
-<button id="downloadBtn" disabled>Download Formatted CSV</button>
+  <br>
+  <button id="downloadBtn" disabled>
+    Download Formatted CSV
+  </button>
 
-<!-- CSV Parser -->
-https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js
+  <!-- PapaParse CSV Library -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1n.js</script>
 
-<!-- Your Logic -->
-<script src="ript>
+  <!-- Your Import Logic -->
+  <script src="script.js"></script>
 
 </body>
 </html>
