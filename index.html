@@ -9,9 +9,32 @@
 <body>
 
   <h1>Inventory Import File Formatter</h1>
-  <p>Upload your inventory CSV. This tool will format it for system import.</p>
+  <p>
+    Upload your inventory CSV file. This tool verifies and normalizes your file
+    so it matches the system’s required import format.
+  </p>
 
   <input type="file" id="fileInput" accept=".csv">
+
+  <p style="margin-top: 10px; font-size: 14px;">
+    Only <strong>StockNumber</strong> is required for import. All other fields may
+    be blank. Partial VINs (7+ characters) are supported.
+  </p>
+
+  <div style="
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #f6f8fa;
+    border: 1px solid #d0d7de;
+    border-radius: 4px;
+    font-size: 13px;
+  ">
+    <strong>Expected CSV Format Example:</strong>
+    <pre style="margin-top: 8px; white-space: pre-wrap;">
+StockNumber,Make,Model,Year,ExtColor,,IntColor,VIN
+A12345,Ford,F-150,2022,Black,,,"1FTFW1E82NFA12345"
+    </pre>
+  </div>
 
   <div id="mappingArea"></div>
 
@@ -23,7 +46,7 @@
   <!-- PapaParse CSV Library -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
-  <!-- Your JavaScript logic -->
+  <!-- Import logic -->
   <script src="script.js"></script>
 
 </body>
