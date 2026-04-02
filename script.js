@@ -1,19 +1,18 @@
 // ==================================================
-// FIXED OUTPUT SCHEMA (ORDER IS NON-NEGOTIABLE)
+// FIXED POSITION IMPORT FORMAT
 // ==================================================
 const OUTPUT_SCHEMA = [
-  { key: "StockNumber" },
-  { key: "Make" },
-  { key: "Model" },
-  { key: "Year" },
-  { key: "ExtColor" },
-  { key: "Blank1", type: "blank" },
-  { key: "IntColor" },
-  { key: "VIN" }
+  "StockNumber",
+  "Make",
+  "Model",
+  "Year",
+  "ExtColor",
+  "",          // Blank column
+  "IntColor",
+  "VIN"
 ];
 
 let parsedRows = [];
-let mappings = {};
 
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("fileInput").addEventListener("change", handleFile);
@@ -28,74 +27,35 @@ function handleFile(event) {
     skipEmptyLines: true,
     complete: (results) => {
       parsedRows = results.data;
-
-      const columnNames = parsedRows[0].map((_, i) => `Column ${i + 1}`);
-      buildMappingUI(columnNames);
+      document.getElementById("mappingArea").innerHTML =
+        "<p><strong>File detected in standard import format.</strong></p>";
+      document.getElementById("downloadBtn").disabled = false;
     }
   });
-}
-
-function buildMappingUI(columnNames) {
-  const container = document.getElementById("mappingArea");
-  container.innerHTML = "<h2>Map Your Columns</h2>";
-  mappings = {};
-
-  OUTPUT_SCHEMA.forEach((field) => {
-    if (field.type === "blank") {
-      container.innerHTML += `<p><strong>${field.key}</strong>: (blank)</p>`;
-      return;
-    }
-
-    const select = document.createElement("select");
-    select.innerHTML = `<option value="">-- Select Column --</option>`;
-
-    columnNames.forEach((name, idx) => {
-      const option = document.createElement("option");
-      option.value = idx;
-      option.textContent = name;
-      select.appendChild(option);
-    });
-
-    select.onchange = (e) => {
-      mappings[field.key] = parseInt(e.target.value, 10);
-    };
-
-    container.appendChild(document.createTextNode(field.key + ": "));
-    container.appendChild(select);
-    container.appendChild(document.createElement("br"));
-  });
-
-  document.getElementById("downloadBtn").disabled = false;
 }
 
 function generateCSV() {
   const output = [];
 
-  // Header row for human visibility
-  output.push(
-    OUTPUT_SCHEMA.map(f => (f.type === "blank" ? "" : f.key))
-  );
+  // Header row for visibility
+  output.push(OUTPUT_SCHEMA);
 
-  parsedRows.forEach((row) => {
-    const outRow = [];
+  // Copy rows positionally
+  parsedRows.forEach(row => {
+    const newRow = [];
 
-    OUTPUT_SCHEMA.forEach((field) => {
-      if (field.type === "blank") {
-        outRow.push("");
-      } else {
-        const idx = mappings[field.key];
-        outRow.push(row[idx] ?? "");
-      }
-    });
+    for (let i = 0; i < OUTPUT_SCHEMA.length; i++) {
+      newRow.push(row[i] || "");
+    }
 
-    output.push(outRow);
+    output.push(newRow);
   });
 
   const csv = Papa.unparse(output);
   const blob = new Blob([csv], { type: "text/csv" });
-  const a = document.createElement("a");
+  const link = document.createElement("a");
 
-  a.href = URL.createObjectURL(blob);
-  a.download = "formatted_inventory.csv";
-  a.click();
+  link.href = URL.createObjectURL(blob);
+  link.download = "formatted_inventory.csv";
+  link.click();
 }
