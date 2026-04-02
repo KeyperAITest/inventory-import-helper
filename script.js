@@ -37,19 +37,35 @@ function handleFile(event) {
 function generateCSV() {
   const output = [];
 
+  const EXPECTED_COL_COUNT = OUTPUT_SCHEMA.length;
+
   // Header row for visibility
   output.push(OUTPUT_SCHEMA);
 
-  // Copy rows positionally
   parsedRows.forEach(row => {
-    const newRow = [];
+    // Ensure row has correct number of columns
+    const normalizedRow = [...row];
+    while (normalizedRow.length < EXPECTED_COL_COUNT) {
+      normalizedRow.push("");
+    }
 
-    for (let i = 0; i < OUTPUT_SCHEMA.length; i++) {
-      newRow.push(row[i] || "");
+    const newRow = [];
+    for (let i = 0; i < EXPECTED_COL_COUNT; i++) {
+      newRow.push(normalizedRow[i] || "");
     }
 
     output.push(newRow);
   });
+
+  const csv = Papa.unparse(output);
+  const blob = new Blob([csv], { type: "text/csv" });
+  const link = document.createElement("a");
+
+  link.href = URL.createObjectURL(blob);
+  link.download = "formatted_inventory.csv";
+  link.click();
+}
+
 
   const csv = Papa.unparse(output);
   const blob = new Blob([csv], { type: "text/csv" });
