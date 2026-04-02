@@ -2,18 +2,18 @@
 // FINAL CANONICAL IMPORT FORMAT
 // ==================================================
 const EXPECTED_HEADERS = [
-  "StockNumber",
-  "Make",
-  "Model",
-  "Year",
-  "ExtColor",
+  "stocknumber",
+  "make",
+  "model",
+  "year",
+  "extcolor",
   "",
-  "IntColor",
-  "VIN"
+  "intcolor",
+  "vin"
 ];
 
 const EXPECTED_COL_COUNT = 8;
-const MIN_VIN_LENGTH = 7; // Accept short VINs (last 7–8 is common)
+const MIN_VIN_LENGTH = 7;
 
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("fileInput").addEventListener("change", handleFile);
@@ -31,7 +31,6 @@ function handleFile(event) {
     complete: (results) => {
       const rows = results.data;
 
-      // Validate StockNumber (only required field)
       if (!hasValidStockNumbers(rows)) {
         showStatus(
           "❌ StockNumber is required for import. One or more rows are missing it.",
@@ -40,14 +39,17 @@ function handleFile(event) {
         return;
       }
 
-      // Always normalize to prevent VIN loss
       if (isAlreadyValid(rows)) {
         showStatus(
           "✅ This file already matches the required import format.",
           "success"
         );
-        formatAndDownload(rows);
+        formatAndDownload(rows); // still normalize to avoid drift
       } else {
+        showStatus(
+          "ℹ️ File was formatted to match the required import structure.",
+          "info"
+        );
         formatAndDownload(rows);
       }
     }
@@ -55,12 +57,11 @@ function handleFile(event) {
 }
 
 // ==================================================
-// VALIDATION RULES
+// VALIDATION
 // ==================================================
 function hasValidStockNumbers(rows) {
-  // Skip header row if present
-  return rows.slice(1).every(row =>
-    row[0] && row[0].toString().trim() !== ""
+  return rows.slice(1).every(
+    row => row[0] && row[0].toString().trim() !== ""
   );
 }
 
@@ -68,17 +69,20 @@ function isAlreadyValid(rows) {
   const headerRow = rows[0];
   if (!headerRow || headerRow.length < EXPECTED_COL_COUNT) return false;
 
-  return (
-    headerRow[0] === "StockNumber" &&
-    headerRow[1] === "Make" &&
-    headerRow[2] === "Model" &&
-    headerRow[3] === "Year" &&
-    headerRow[7] === "VIN"
-  );
+  return EXPECTED_HEADERS.every((expected, idx) => {
+    if (expected === "") return true; // allow blank placeholder columns
+
+    const actual = (headerRow[idx] || "")
+      .toString()
+      .trim()
+      .toLowerCase();
+
+    return actual === expected;
+  });
 }
 
 // ==================================================
-// VIN EXTRACTION (FULL OR PARTIAL)
+// VIN HANDLING
 // ==================================================
 function extractVin(row) {
   const candidate = row[row.length - 1];
@@ -89,35 +93,40 @@ function extractVin(row) {
 }
 
 // ==================================================
-// FORMAT + NORMALIZE FILE
+// FORMAT + NORMALIZE
 // ==================================================
 function formatAndDownload(rows) {
   const output = [];
 
-  // Add canonical header row
-  output.push(EXPECTED_HEADERS);
+  output.push([
+    "StockNumber",
+    "Make",
+    "Model",
+    "Year",
+    "ExtColor",
+    "",
+    "IntColor",
+    "VIN"
+  ]);
 
   rows.forEach((row, index) => {
-    // Skip existing header row
-    if (index === 0 && row[0] === "StockNumber") return;
+    // Skip header row if present
+    if (index === 0 && row[0]?.toString().toLowerCase().trim() === "stocknumber") {
+      return;
+    }
 
     const normalized = new Array(EXPECTED_COL_COUNT).fill("");
 
-    normalized[0] = row[0] || ""; // StockNumber (required)
-    normalized[1] = row[1] || ""; // Make
-    normalized[2] = row[2] || ""; // Model
-    normalized[3] = row[3] || ""; // Year
-    normalized[4] = row[4] || ""; // ExtColor
-    normalized[6] = row[6] || ""; // IntColor
-    normalized[7] = extractVin(row); // VIN (>=7 chars)
+    normalized[0] = row[0] || "";
+    normalized[1] = row[1] || "";
+    normalized[2] = row[2] || "";
+    normalized[3] = row[3] || "";
+    normalized[4] = row[4] || "";
+    normalized[6] = row[6] || "";
+    normalized[7] = extractVin(row);
 
     output.push(normalized);
   });
-
-  showStatus(
-    "ℹ️ File was normalized to the required import structure.",
-    "info"
-  );
 
   downloadCSV(output);
 }
@@ -161,4 +170,3 @@ function downloadCSV(data) {
   link.download = "formatted_inventory.csv";
   link.click();
 }
-``
