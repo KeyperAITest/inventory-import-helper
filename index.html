@@ -9,44 +9,50 @@
 <body>
 
   <h1>Inventory Import File Formatter</h1>
+
   <p>
-    Upload your inventory file (CSV or Excel). This tool verifies and normalizes
-    your file so it matches the system’s required import format.
+    Upload your inventory file (CSV or Excel). This tool verifies, normalizes,
+    and formats your data into the required import structure.
   </p>
 
   <input type="file" id="fileInput" accept=".csv,.xls,.xlsx">
 
   <p style="margin-top: 10px; font-size: 14px;">
-    Only <strong>StockNumber</strong> is required for import. All other fields may
-    be blank. Partial VINs (7+ characters) are supported.
+    Only <strong>StockNumber</strong> is required. Other fields are optional.
+    Partial VINs (7+ characters) are supported.
   </p>
 
-  <div style="
-    margin-top: 15px;
-    padding: 10px;
-    background-color: #f6f8fa;
-    border: 1px solid #d0d7de;
-    border-radius: 4px;
-    font-size: 13px;
-  ">
-    <strong>Expected Import Format Example:</strong>
-    <pre style="margin-top: 8px; white-space: pre-wrap;">
+  <div style="margin-top: 15px; padding: 10px; background:#f6f8fa; border:1px solid #d0d7de;">
+    <strong>Expected Import Format:</strong>
+    <pre>
 StockNumber,Make,Model,Year,ExtColor,,IntColor,VIN
 A12345,Ford,F-150,2022,Black,,,"1FTFW1E82NFA12345"
     </pre>
   </div>
 
+  <!-- Status / Messages -->
   <div id="mappingArea"></div>
 
-  <!-- PapaParse (CSV) -->
+  <!-- Column Mapping UI -->
+  <div id="mappingUI" style="display:none; margin-top:20px;">
+    <h3>Map Your Columns</h3>
+    <p>Select which column from your file maps to each required field.</p>
+
+    <div id="mappingTable"></div>
+
+    <button id="generateFromMappingBtn">
+      Generate Formatted CSV
+    </button>
+  </div>
+
+  <!-- PapaParse -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
-  <!-- SheetJS (Excel) -->
+  <!-- SheetJS -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
-  <!-- Import logic -->
+  <!-- Logic -->
   <script src="script.js"></script>
 
 </body>
 </html>
-``
